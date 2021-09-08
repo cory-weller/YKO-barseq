@@ -1,4 +1,4 @@
-# 1011-barcodes
+# YKO-barseq
 
 ## Building singularity image
 On a computer with sudo access, run:
@@ -10,7 +10,7 @@ sudo singularity build bartender.sif Singularity
 ## Running bartender extractor
 ```bash
 singularity exec \
-    -B /data/SBGE/cory/1011-barcodes:/home/wellerca/ \
+    -B /data/SBGE/cory/YKO-barseq:/home/wellerca/ \
     bartender/bartender.sif bartender_extractor_com \
     -f seq/MS3059950-600V3_19109498_S7_L001_R1_001.fastq \
     -o pre  \
@@ -38,7 +38,7 @@ python3 format_barcodes.py pre_barcode.txt > barcodes.txt
 ## Running bartender cluster
 ```bash
 singularity exec \
-    -B /data/SBGE/cory/1011-barcodes:/home/wellerca/ \
+    -B /data/SBGE/cory/YKO-barseq:/home/wellerca/ \
     bartender/bartender.sif bartender_single_com  \
     -f barcodes.txt \
     -o barcode_clusters  \
@@ -79,7 +79,7 @@ library(data.table)
 library(ggplot2)
 library(ggrepel)
 
-dat <- fread('barcode_clusters_barcodes.csv')
+dat <- fread('barcode_clusters_barcode.csv')
 
 consensus <- dat[, .SD[which.max(Frequency)], by=Cluster.ID]
 
@@ -92,13 +92,8 @@ dat.merge <- merge(dat, consensus)
 consensus_counts <- dat.merge[, list("N" = sum(Frequency)), by=consensus][order(-N)]
 consensus_counts[, abundance_rank := 1:.N]
 
-# ggplot(consensus_counts, aes(x=abundance_rank, y=N)) + geom_point() +
-# scale_y_continuous(trans='log10', 
-#                     breaks=c(1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6),
-#                     labels=c("1", "10", "100", "1000", "1000", "10000", "100000")) +
-# labs(x="Barcodes ranked by abundance",
-#         y="Abundance") +
-# theme_few(12)
+fwrite(consensus_counts, file="consensus_counts.csv", quote=F, row.names=F, col.names=T, sep=",")
+
 
 consensus_counts[N > 3000, text_label := consensus]
 
