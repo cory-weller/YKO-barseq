@@ -73,7 +73,7 @@ The overall running time 00:00:05 seconds.
 ```
 
 
-## Take most abundant seq (consensus) per cluster
+## Take most abundant seq (consensus) per cluster and plot
 ```R
 library(data.table)
 library(ggplot2)
